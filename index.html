@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orçamento FBF</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --text: #17202a;
+      --muted: #5f6b7a;
+      --line: #d9e0e8;
+      --brand: #1557a6;
+      --brand-dark: #0d3e78;
+      --green: #138a49;
+      --red: #c62828;
+      --amber: #a96300;
+      --soft-blue: #e9f2ff;
+      --soft-red: #fff0f0;
+      --soft-amber: #fff7e6;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      padding: 18px clamp(14px, 4vw, 34px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(22px, 4vw, 32px);
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .file-button,
+    .ghost-button,
+    .primary-button {
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 14px;
+      cursor: pointer;
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .file-button,
+    .primary-button {
+      background: var(--brand);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .file-button:hover,
+    .primary-button:hover {
+      background: var(--brand-dark);
+    }
+
+    .ghost-button {
+      background: #eef2f6;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .ghost-button:hover {
+      background: #e2e8ef;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    main {
+      width: min(1480px, 100%);
+      margin: 0 auto;
+      padding: 18px clamp(12px, 3vw, 28px) 30px;
+      display: grid;
+      grid-template-columns: minmax(290px, 410px) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .commercial-header {
+      width: min(1480px, 100%);
+      margin: 18px auto 0;
+      padding: 0 clamp(12px, 3vw, 28px);
+    }
+
+    .commercial-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .commercial-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .commercial-field {
+      display: grid;
+      gap: 6px;
+      grid-column: span 4;
+    }
+
+    .commercial-field.small {
+      grid-column: span 3;
+    }
+
+    .commercial-field.full {
+      grid-column: 1 / -1;
+    }
+
+    .commercial-field textarea {
+      width: 100%;
+      min-height: 74px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 11px;
+      font: inherit;
+      color: var(--text);
+    }
+
+    .percent-field {
+      position: relative;
+    }
+
+    .percent-field input {
+      padding-right: 30px;
+    }
+
+    .percent-field::after {
+      content: "%";
+      position: absolute;
+      right: 11px;
+      bottom: 11px;
+      color: var(--muted);
+      font-weight: 700;
+      pointer-events: none;
+    }
+
+    .commercial-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 15px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .panel-body {
+      padding: 14px 16px 16px;
+    }
+
+    .status {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .status.ok {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .status.warn {
+      color: var(--amber);
+      font-weight: 700;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input[type="search"],
+    input[type="number"],
+    input[type="text"],
+    input[type="tel"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      min-height: 42px;
+      padding: 10px 11px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    input:focus {
+      outline: 2px solid #b9d7ff;
+      border-color: var(--brand);
+    }
+
+    textarea:focus {
+      outline: 2px solid #b9d7ff;
+      border-color: var(--brand);
+    }
+
+    .product-list {
+      display: grid;
+      gap: 8px;
+      max-height: calc(100vh - 292px);
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .product-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+      display: grid;
+      gap: 9px;
+    }
+
+    .product-top {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .product-name {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.28;
+      word-break: break-word;
+    }
+
+    .code {
+      font-weight: 700;
+      color: var(--brand-dark);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .product-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .small-button {
+      border: 0;
+      border-radius: 8px;
+      padding: 9px 10px;
+      background: var(--brand);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+      min-width: 88px;
+    }
+
+    .small-button:hover {
+      background: var(--brand-dark);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .summary-box {
+      background: var(--soft-blue);
+      border: 1px solid #c8def8;
+      border-radius: 8px;
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .summary-box.danger {
+      background: var(--soft-red);
+      border-color: #ffc7c7;
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .summary-value {
+      font-size: clamp(18px, 2.2vw, 26px);
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .target-alert {
+      display: none;
+      margin-top: 6px;
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .summary-box.danger .target-alert {
+      display: block;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      min-width: 940px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 10px 9px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    th {
+      background: #f0f4f8;
+      color: #2d3948;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    td.number,
+    th.number {
+      text-align: right;
+    }
+
+    th.code-col,
+    td.code-col {
+      width: 58px;
+      min-width: 58px;
+      max-width: 58px;
+      padding-left: 8px;
+      padding-right: 6px;
+    }
+
+    .qty-input,
+    .price-input {
+      width: 92px;
+      text-align: right;
+    }
+
+    .qty-input {
+      width: 68px;
+    }
+
+    th.qty-col,
+    td.qty-col {
+      min-width: 82px;
+    }
+
+    .price-input {
+      width: 136px;
+    }
+
+    th.price-col,
+    td.price-col {
+      min-width: 152px;
+    }
+
+    .desc-cell {
+      min-width: 240px;
+      line-height: 1.32;
+    }
+
+    .table-chip,
+    .table-select {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 48px;
+      border-radius: 8px;
+      background: #eaf6ee;
+      color: #0e6a35;
+      padding: 6px 8px;
+      font-weight: 800;
+    }
+
+    .table-select {
+      border: 0;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      padding-right: 22px;
+      background-image: linear-gradient(45deg, transparent 50%, #0e6a35 50%), linear-gradient(135deg, #0e6a35 50%, transparent 50%);
+      background-position: calc(100% - 12px) 50%, calc(100% - 7px) 50%;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+
+    .alert {
+      color: var(--amber);
+      font-size: 12px;
+      font-weight: 800;
+      margin-top: 5px;
+    }
+
+    .invalid-cost {
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .remove-button {
+      border: 1px solid #ffc7c7;
+      background: var(--soft-red);
+      color: var(--red);
+      border-radius: 8px;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-weight: 900;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .empty {
+      padding: 22px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .rules {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .rule-pill {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 12px;
+      background: #fff;
+    }
+
+    .rule-pill strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+
+    @media (max-width: 980px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .product-list {
+        max-height: 420px;
+      }
+    }
+
+    @media (max-width: 680px) {
+      header {
+        align-items: stretch;
+      }
+
+      .header-actions,
+      .file-button,
+      .ghost-button {
+        width: 100%;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .commercial-field,
+      .commercial-field.small {
+        grid-column: 1 / -1;
+      }
+
+      .panel-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .rules {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>Orçamento FBF</h1>
+        <p class="subtitle">Importe o estoque, adicione produtos e ajuste preços com comissão em tempo real.</p>
+      </div>
+      <div class="header-actions">
+        <label class="file-button" for="stockFile">Importar estoque .xlsx</label>
+        <input id="stockFile" type="file" accept=".xlsx" />
+        <button id="exportButton" class="primary-button" type="button">Exportar orçamento</button>
+        <button id="clearStockButton" class="ghost-button" type="button">Limpar estoque salvo</button>
+        <button id="clearButton" class="ghost-button" type="button">Limpar orçamento</button>
+      </div>
+    </header>
+
+    <section class="commercial-header">
+      <div class="commercial-card">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Cabeçalho comercial</h2>
+            <div class="status">Dados editáveis do cliente, vendedor e condições comerciais.</div>
+          </div>
+          <button id="clearCustomerButton" class="ghost-button" type="button">Limpar dados do cliente</button>
+        </div>
+        <div class="panel-body">
+          <div class="commercial-grid">
+            <div class="commercial-field">
+              <label for="clienteInput">Cliente</label>
+              <input id="clienteInput" type="text" />
+            </div>
+            <div class="commercial-field">
+              <label for="nomeFantasiaInput">Nome Fantasia</label>
+              <input id="nomeFantasiaInput" type="text" />
+            </div>
+            <div class="commercial-field">
+              <label for="documentoInput">CNPJ/CPF</label>
+              <input id="documentoInput" type="text" inputmode="numeric" autocomplete="off" />
+            </div>
+            <div class="commercial-field">
+              <label for="contatoInput">Contato</label>
+              <input id="contatoInput" type="text" />
+            </div>
+            <div class="commercial-field">
+              <label for="telefoneInput">Telefone</label>
+              <input id="telefoneInput" type="tel" inputmode="numeric" autocomplete="off" />
+            </div>
+            <div class="commercial-field">
+              <label for="cidadeInput">Cidade</label>
+              <input id="cidadeInput" type="text" />
+            </div>
+            <div class="commercial-field small">
+              <label for="vendedorInput">Vendedor</label>
+              <input id="vendedorInput" type="text" />
+            </div>
+            <div class="commercial-field small">
+              <label for="6v9n4z">WhatsApp do vendedor</label>
+              <input id="6v9n4z" type="tel" inputmode="numeric" autocomplete="off" />
+            </div>
+            <div class="commercial-field small percent-field">
+              <label for="j9h2t8">Comissão alvo (%)</label>
+              <input id="j9h2t8" type="text" inputmode="numeric" value="5" autocomplete="off" />
+            </div>
+            <div class="commercial-field small">
+              <label for="7nyy5v">Data do orçamento</label>
+              <input id="7nyy5v" type="text" inputmode="numeric" />
+            </div>
+            <div class="commercial-field full">
+              <label for="observacoesInput">Observações</label>
+              <textarea id="observacoesInput"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main>
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Produtos</h2>
+            <div id="stockStatus" class="status">Nenhum estoque importado.</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="field">
+            <label for="searchInput">Buscar por código ou descrição</label>
+            <input id="searchInput" type="search" placeholder="Digite para buscar" />
+          </div>
+          <div id="productList" class="product-list">
+            <div class="empty">Importe a planilha de estoque para começar.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Orçamento</h2>
+            <div class="status">A tabela é definida automaticamente pela faixa do preço digitado.</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="summary-grid">
+            <div class="summary-box">
+              <div class="summary-label">Total do pedido</div>
+              <div id="orderTotal" class="summary-value">R$ 0,00</div>
+            </div>
+            <div class="summary-box">
+              <div class="summary-label">Comissão total</div>
+              <div id="commissionTotal" class="summary-value">R$ 0,00</div>
+            </div>
+            <div id="avgBox" class="summary-box">
+              <div class="summary-label">Comissão média</div>
+              <div id="avgCommission" class="summary-value">0,00%</div>
+              <div id="a8zj34" class="target-alert">Abaixo da meta de comissão</div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th class="code-col">Código</th>
+                  <th>Descrição</th>
+                  <th class="number">Estoque</th>
+                  <th class="number qty-col">Qtd.</th>
+                  <th class="number price-col">Preço unit.</th>
+                  <th>Tabela</th>
+                  <th class="number">% comissão</th>
+                  <th class="number">Valor comissão</th>
+                  <th class="number">Total item</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="quoteBody">
+                <tr>
+                  <td colspan="10" class="empty">Nenhum produto adicionado.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Tabelas fixas</h2>
+          <div class="status">Dados extraídos da lógica FBF Abril 2026.</div>
+        </div>
+        <div class="panel-body">
+          <div id="rulesList" class="rules"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const PRICE_TABLES = [
+      { nome: "TAB1", reajuste: 0.30, comissao: 0.01 },
+      { nome: "TAB2", reajuste: 0.35, comissao: 0.015 },
+      { nome: "TAB3", reajuste: 0.40, comissao: 0.03 },
+      { nome: "TAB4", reajuste: 0.45, comissao: 0.035 },
+      { nome: "TAB5", reajuste: 0.50, comissao: 0.05 },
+      { nome: "TA55", reajuste: 0.60, comissao: 0.055 },
+      { nome: "TAB6", reajuste: 0.70, comissao: 0.06 },
+      { nome: "TAB7", reajuste: 0.80, comissao: 0.07 },
+      { nome: "TAB8", reajuste: 1.00, comissao: 0.08 },
+      { nome: "TAB9", reajuste: 1.10, comissao: 0.09 },
+      { nome: "TA10", reajuste: 1.20, comissao: 0.10 },
+      { nome: "TA11", reajuste: 1.30, comissao: 0.11 },
+      { nome: "TA12", reajuste: 1.40, comissao: 0.12 },
+      { nome: "TA13", reajuste: 1.50, comissao: 0.13 },
+      { nome: "TA14", reajuste: 1.60, comissao: 0.14 }
+    ];
+
+    let products = [];
+    let quote = [];
+    let inputTimer = null;
+    const STOCK_STORAGE_KEY = "fbf_stock";
+
+    const stockFile = document.getElementById("stockFile");
+    const stockStatus = document.getElementById("stockStatus");
+    const searchInput = document.getElementById("searchInput");
+    const productList = document.getElementById("productList");
+    const quoteBody = document.getElementById("quoteBody");
+    const orderTotal = document.getElementById("orderTotal");
+    const commissionTotal = document.getElementById("commissionTotal");
+    const avgCommission = document.getElementById("avgCommission");
+    const avgBox = document.getElementById("avgBox");
+    const exportButton = document.getElementById("exportButton");
+    const clearStockButton = document.getElementById("clearStockButton");
+    const clearButton = document.getElementById("clearButton");
+    const clearCustomerButton = document.getElementById("clearCustomerButton");
+    const documentInput = document.getElementById("documentoInput");
+    const customerPhoneInput = document.getElementById("telefoneInput");
+    const whatsappSellerInput = document.getElementById("6v9n4z");
+    const targetCommissionInput = document.getElementById("j9h2t8");
+    const quoteDateInput = document.getElementById("7nyy5v");
+    const rulesList = document.getElementById("rulesList");
+    const customerFields = [
+      "clienteInput",
+      "nomeFantasiaInput",
+      "documentoInput",
+      "contatoInput",
+      "telefoneInput",
+      "cidadeInput",
+      "observacoesInput"
+    ].map(id => document.getElementById(id));
+
+    const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+    const percent = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function round2(value) {
+      return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+    }
+
+    function toNumber(value) {
+      if (typeof value === "number") return value;
+      if (value === null || value === undefined) return 0;
+      const clean = String(value).trim().replace(/\./g, "").replace(",", ".");
+      const parsed = Number(clean);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function formatMoney(value) {
+      return money.format(round2(value || 0));
+    }
+
+    function formatPercent(value) {
+      return percent.format((value || 0) * 100) + "%";
+    }
+
+    function todayPtBr() {
+      const now = new Date();
+      const day = String(now.getDate()).padStart(2, "0");
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const year = now.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    function nowPtBrMinute() {
+      const now = new Date();
+      const day = String(now.getDate()).padStart(2, "0");
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const year = now.getFullYear();
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      return `${day}/${month}/${year} ${hours}:${minutes}`;
+    }
+
+    function onlyDigits(value, maxLength) {
+      return String(value || "").replace(/\D/g, "").slice(0, maxLength);
+    }
+
+    function maskCpfCnpj(value) {
+      const digits = onlyDigits(value, 14);
+      if (digits.length <= 11) {
+        return digits
+          .replace(/^(\d{3})(\d)/, "$1.$2")
+          .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+          .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+      }
+      return digits
+        .replace(/^(\d{2})(\d)/, "$1.$2")
+        .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+        .replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3/$4")
+        .replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, "$1.$2.$3/$4-$5");
+    }
+
+    function maskPhone(value) {
+      const digits = onlyDigits(value, 11);
+      if (digits.length <= 2) return digits ? `(${digits}` : "";
+      if (digits.length <= 3) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+      if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3)}`;
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3, 7)}-${digits.slice(7)}`;
+    }
+
+    function sanitizeTargetCommission(value) {
+      const digits = onlyDigits(value, 3);
+      return String(Math.max(0, Number(digits || 0)));
+    }
+
+    function normalize(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    function priceForTable(cost, tableName) {
+      const rule = PRICE_TABLES.find(item => item.nome === tableName) || PRICE_TABLES[0];
+      return round2(cost * (1 + rule.reajuste));
+    }
+
+    function rangesForProduct(product) {
+      return PRICE_TABLES
+        .map(rule => ({
+          nome: rule.nome,
+          comissao: rule.comissao,
+          preco: round2(product.custo * (1 + rule.reajuste))
+        }))
+        .sort((a, b) => a.preco - b.preco)
+        .map((rule, index, ordered) => ({
+          ...rule,
+          min: rule.preco,
+          max: ordered[index + 1] ? round2(ordered[index + 1].preco - 0.01) : rule.preco
+        }));
+    }
+
+    function clampAndClassify(product, price) {
+      const ranges = rangesForProduct(product);
+      const min = ranges[0].min;
+      const max = ranges[ranges.length - 1].min;
+      const adjusted = round2(Math.min(Math.max(toNumber(price), min), max));
+      const active = ranges.find(range => adjusted >= range.min && adjusted <= range.max) || ranges[ranges.length - 1];
+      return { preco: adjusted, tabela: active.nome, comissao: active.comissao, min, max };
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function renderRules() {
+      rulesList.innerHTML = PRICE_TABLES.map(rule => `
+        <div class="rule-pill">
+          <strong>${rule.nome}</strong>
+          Comissão ${formatPercent(rule.comissao)}
+        </div>
+      `).join("");
+    }
+
+    function renderProducts() {
+      const term = normalize(searchInput.value);
+      const visible = products
+        .filter(product => !term || normalize(product.codigo).includes(term) || normalize(product.descricao).includes(term))
+        .slice(0, 80);
+
+      if (!products.length) {
+        productList.innerHTML = '<div class="empty">Importe a planilha de estoque para começar.</div>';
+        return;
+      }
+
+      if (!visible.length) {
+        productList.innerHTML = '<div class="empty">Nenhum produto encontrado.</div>';
+        return;
+      }
+
+      productList.innerHTML = visible.map(product => `
+        <article class="product-card">
+          <div class="product-top">
+            <div>
+              <div class="code">${escapeHtml(product.codigo)}</div>
+              <p class="product-name">${escapeHtml(product.descricao)}</p>
+            </div>
+            <button class="small-button" type="button" data-add="${escapeHtml(product.codigo)}">Adicionar</button>
+          </div>
+          <div class="product-meta">
+            <span>Estoque: ${percent.format(product.estoque)}</span>
+          </div>
+          ${product.custo > 0 ? "" : '<div class="invalid-cost">Produto sem VR. COMPRA válido.</div>'}
+        </article>
+      `).join("");
+    }
+
+    function addProduct(code) {
+      const product = products.find(item => String(item.codigo) === String(code));
+      if (!product || product.custo <= 0) return;
+
+      const existing = quote.find(item => String(item.codigo) === String(code));
+      if (existing) {
+        existing.quantidade = round2(existing.quantidade + 1);
+      } else {
+        const startPrice = priceForTable(product.custo, "TAB6");
+        const classified = clampAndClassify(product, startPrice);
+        quote.push({
+          ...product,
+          quantidade: 1,
+          preco: classified.preco,
+          tabela: classified.tabela,
+          comissao: classified.comissao
+        });
+      }
+      renderQuote();
+    }
+
+    function updateItem(index, field, value) {
+      const item = quote[index];
+      if (!item) return;
+
+      if (field === "quantidade") {
+        item.quantidade = Math.max(0, toNumber(value));
+      }
+
+      if (field === "preco") {
+        const classified = clampAndClassify(item, value);
+        item.preco = classified.preco;
+        item.tabela = classified.tabela;
+        item.comissao = classified.comissao;
+      }
+
+      renderQuote();
+    }
+
+    function updateItemTable(index, tableName) {
+      const item = quote[index];
+      const rule = PRICE_TABLES.find(table => table.nome === tableName);
+      if (!item || !rule) return;
+
+      const classified = clampAndClassify(item, priceForTable(item.custo, rule.nome));
+      item.preco = classified.preco;
+      item.tabela = classified.tabela;
+      item.comissao = classified.comissao;
+      renderQuote();
+    }
+
+    function removeItem(index) {
+      quote.splice(index, 1);
+      renderQuote();
+    }
+
+    function renderQuote() {
+      if (!quote.length) {
+        quoteBody.innerHTML = '<tr><td colspan="10" class="empty">Nenhum produto adicionado.</td></tr>';
+        renderSummary();
+        return;
+      }
+
+      quoteBody.innerHTML = quote.map((item, index) => {
+        const total = round2(item.quantidade * item.preco);
+        const commission = round2(total * item.comissao);
+        const stockWarning = item.quantidade > item.estoque ? '<div class="alert">Estoque insuficiente</div>' : "";
+
+        return `
+          <tr>
+            <td class="code-col"><strong>${escapeHtml(item.codigo)}</strong></td>
+            <td class="desc-cell">${escapeHtml(item.descricao)}</td>
+            <td class="number">${percent.format(item.estoque)}</td>
+            <td class="number qty-col">
+              <input class="qty-input" type="number" min="0" step="0.01" value="${item.quantidade}" data-index="${index}" data-field="quantidade" />
+              ${stockWarning}
+            </td>
+            <td class="number price-col">
+              <input class="price-input" type="number" min="0" step="0.01" value="${item.preco.toFixed(2)}" data-index="${index}" data-field="preco" />
+            </td>
+            <td>
+              <select class="table-select" data-table-select="${index}" aria-label="Selecionar tabela">
+                ${PRICE_TABLES.map(rule => `<option value="${rule.nome}" ${rule.nome === item.tabela ? "selected" : ""}>${rule.nome}</option>`).join("")}
+              </select>
+            </td>
+            <td class="number">${formatPercent(item.comissao)}</td>
+            <td class="number"><strong>${formatMoney(commission)}</strong></td>
+            <td class="number"><strong>${formatMoney(total)}</strong></td>
+            <td class="number"><button class="remove-button" type="button" data-remove="${index}" aria-label="Remover">X</button></td>
+          </tr>
+        `;
+      }).join("");
+
+      renderSummary();
+    }
+
+    function renderSummary() {
+      const totals = quote.reduce((acc, item) => {
+        const itemTotal = round2(item.quantidade * item.preco);
+        const itemCommission = round2(itemTotal * item.comissao);
+        acc.total += itemTotal;
+        acc.commission += itemCommission;
+        return acc;
+      }, { total: 0, commission: 0 });
+
+      const average = totals.total > 0 ? totals.commission / totals.total : 0;
+      orderTotal.textContent = formatMoney(totals.total);
+      commissionTotal.textContent = formatMoney(totals.commission);
+      avgCommission.textContent = formatPercent(average);
+      const target = Math.max(0, toNumber(targetCommissionInput.value)) / 100;
+      avgBox.classList.toggle("danger", average > 0 && average < target);
+    }
+
+    function getInputValue(id) {
+      const field = document.getElementById(id);
+      return field ? field.value.trim() : "";
+    }
+
+    function exportQuotePdf() {
+      const exportedItems = quote.filter(item => Number(item.quantidade) > 0);
+      if (!exportedItems.length) {
+        alert("Adicione ao menos um produto ao orçamento antes de exportar.");
+        return;
+      }
+
+      const headerData = {
+        cliente: [
+          ["Cliente", getInputValue("clienteInput")],
+          ["Nome Fantasia", getInputValue("nomeFantasiaInput")],
+          ["CNPJ/CPF", getInputValue("documentoInput")],
+          ["Contato", getInputValue("contatoInput")],
+          ["Telefone", getInputValue("telefoneInput")],
+          ["Cidade", getInputValue("cidadeInput")]
+        ].filter(field => field[1]),
+        vendedor: [
+          ["Vendedor", getInputValue("vendedorInput")],
+          ["WhatsApp do vendedor", getInputValue("6v9n4z")],
+          ["Data do orçamento", getInputValue("7nyy5v")],
+          ["Observações", getInputValue("observacoesInput")]
+        ].filter(field => field[1]),
+        observacoes: ""
+      };
+
+      const total = exportedItems.reduce((sum, item) => sum + round2(item.quantidade * item.preco), 0);
+      const pdfBytes = createQuotePdf(headerData, exportedItems, total, exportedItems.length);
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = pdfFileName();
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function pdfFileName() {
+      const client = getInputValue("clienteInput") || getInputValue("nomeFantasiaInput");
+      if (!client) return "orcamento-fbf.pdf";
+      const safeClient = client
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .toUpperCase();
+      const safeDate = (getInputValue("7nyy5v") || todayPtBr()).replace(/\D/g, "-").replace(/-+/g, "-").replace(/^-+|-+$/g, "");
+      return `orcamento-fbf-${safeClient}-${safeDate}.pdf`;
+    }
+
+    function createQuotePdf(headerData, items, totalValue, skuCount) {
+      const pageWidth = 595.28;
+      const pageHeight = 841.89;
+      const margin = 42;
+      const tableWidth = pageWidth - margin * 2;
+      const columns = [
+        { title: "Código", width: 55, align: "left" },
+        { title: "Descrição", width: 205, align: "left" },
+        { title: "Qtd.", width: 50, align: "center" },
+        { title: "Valor unitário", width: 95, align: "right" },
+        { title: "Valor total", width: 106.28, align: "right" }
+      ];
+      const pages = [];
+      let commands = [];
+      let y = pageHeight - margin;
+
+      function addPage() {
+        if (commands.length) pages.push(commands.join("\n"));
+        commands = [];
+        y = pageHeight - margin;
+      }
+
+      function color(rgb) {
+        return rgb.map(value => (value / 255).toFixed(3)).join(" ");
+      }
+
+      function rect(x, yTop, w, h, fill) {
+        commands.push(`q ${color(fill)} rg ${n(x)} ${n(yTop - h)} ${n(w)} ${n(h)} re f Q`);
+      }
+
+      function strokeRect(x, yTop, w, h, stroke, width = 0.7) {
+        commands.push(`q ${color(stroke)} RG ${n(width)} w ${n(x)} ${n(yTop - h)} ${n(w)} ${n(h)} re S Q`);
+      }
+
+      function line(x1, y1, x2, y2, stroke, width = 0.7) {
+        commands.push(`q ${color(stroke)} RG ${n(width)} w ${n(x1)} ${n(y1)} m ${n(x2)} ${n(y2)} l S Q`);
+      }
+
+      function textWidth(text, size) {
+        return String(text).length * size * 0.48;
+      }
+
+      function cleanPdfText(value) {
+        return String(value ?? "")
+          .replace(/[“”]/g, '"')
+          .replace(/[‘’]/g, "'")
+          .replace(/[–—]/g, "-")
+          .replace(/[^\x09\x0A\x0D\x20-\x7E\xA0-\xFF]/g, "");
+      }
+
+      function pdfText(value) {
+        return cleanPdfText(value)
+          .replace(/\\/g, "\\\\")
+          .replace(/\(/g, "\\(")
+          .replace(/\)/g, "\\)");
+      }
+
+      function drawText(value, x, yBase, size, fill, style = "regular", align = "left", maxWidth = null) {
+        let text = cleanPdfText(value);
+        if (maxWidth) {
+          while (text.length > 3 && textWidth(text, size) > maxWidth) text = text.slice(0, -2);
+        }
+        const font = style === "bold" ? "F2" : "F1";
+        let tx = x;
+        if (align === "right") tx = x - textWidth(text, size);
+        if (align === "center") tx = x - textWidth(text, size) / 2;
+        commands.push(`BT /${font} ${n(size)} Tf ${color(fill)} rg ${n(tx)} ${n(yBase)} Td (${pdfText(text)}) Tj ET`);
+      }
+
+      function wrapText(value, maxWidth, size) {
+        const words = cleanPdfText(value).split(/\s+/).filter(Boolean);
+        const lines = [];
+        let line = "";
+        words.forEach(word => {
+          const candidate = line ? `${line} ${word}` : word;
+          if (textWidth(candidate, size) <= maxWidth) {
+            line = candidate;
+          } else {
+            if (line) lines.push(line);
+            if (textWidth(word, size) > maxWidth) {
+              let chunk = "";
+              for (const char of word) {
+                if (textWidth(chunk + char, size) <= maxWidth) {
+                  chunk += char;
+                } else {
+                  lines.push(chunk);
+                  chunk = char;
+                }
+              }
+              line = chunk;
+            } else {
+              line = word;
+            }
+          }
+        });
+        if (line) lines.push(line);
+        return lines.length ? lines : [""];
+      }
+
+      function drawTitle() {
+        drawText("ORÇAMENTO FBF", margin, y, 20, [23, 32, 42], "bold");
+        y -= 16;
+        rect(margin, y, tableWidth, 1, [210, 218, 226]);
+        y -= 22;
+      }
+
+      function drawCommercialHeader() {
+        const hasClient = headerData.cliente.length > 0;
+        const hasSeller = headerData.vendedor.length > 0;
+        const hasObs = Boolean(headerData.observacoes);
+        if (!hasClient && !hasSeller && !hasObs) return;
+
+        const gap = 14;
+        const blockW = (tableWidth - gap) / 2;
+        const blockTop = y;
+        const clientH = hasClient ? blockHeight(headerData.cliente, blockW) : 0;
+        const sellerH = hasSeller ? blockHeight(headerData.vendedor, blockW) : 0;
+        const rowH = Math.max(clientH, sellerH);
+
+        if ((hasClient || hasSeller) && y - rowH < margin + 120) addPage();
+        if (hasClient) drawInfoBlock("DADOS DO CLIENTE", headerData.cliente, margin, blockTop, blockW, rowH);
+        if (hasSeller) drawInfoBlock("DADOS DO VENDEDOR", headerData.vendedor, margin + blockW + gap, blockTop, blockW, rowH);
+        if (hasClient || hasSeller) y -= rowH + 12;
+
+        if (hasObs) {
+          const obsLines = wrapText(headerData.observacoes, tableWidth - 22, 9.5);
+          const obsH = 36 + obsLines.length * 12;
+          if (y - obsH < margin + 100) addPage();
+          rect(margin, y, tableWidth, obsH, [247, 249, 251]);
+          strokeRect(margin, y, tableWidth, obsH, [215, 222, 231]);
+          drawText("OBSERVAÇÕES", margin + 11, y - 14, 8, [54, 64, 76], "bold");
+          obsLines.forEach((line, index) => drawText(line, margin + 11, y - 30 - index * 12, 9.5, [42, 51, 61], "regular", "left", tableWidth - 22));
+          y -= obsH + 14;
+        }
+      }
+
+      function blockHeight(fields, width) {
+        const innerW = width - 22;
+        const fieldHeight = fields.reduce((sum, [, value]) => sum + 17 + wrapText(value, innerW, 9.8).length * 11, 0);
+        return Math.max(74, 30 + fieldHeight);
+      }
+
+      function drawInfoBlock(title, fields, x, top, width, height) {
+        const innerX = x + 11;
+        const innerW = width - 22;
+        rect(x, top, width, height, [247, 249, 251]);
+        strokeRect(x, top, width, height, [215, 222, 231]);
+        drawText(title, innerX, top - 14, 8.5, [54, 64, 76], "bold");
+        line(innerX, top - 22, x + width - 11, top - 22, [225, 231, 238], 0.6);
+        let fieldY = top - 36;
+        fields.forEach(([label, value]) => {
+          const lines = wrapText(value, innerW, 9.8);
+          drawText(label, innerX, fieldY, 7.5, [95, 107, 122], "bold");
+          lines.forEach((lineText, index) => drawText(lineText, innerX, fieldY - 11 - index * 11, 9.8, [23, 32, 42], "regular", "left", innerW));
+          fieldY -= 17 + lines.length * 11;
+        });
+      }
+
+      function drawTableHeader() {
+        const headerH = 24;
+        rect(margin, y, tableWidth, headerH, [54, 64, 76]);
+        let x = margin;
+        columns.forEach(col => {
+          const tx = col.align === "right" ? x + col.width - 8 : col.align === "center" ? x + col.width / 2 : x + 8;
+          drawText(col.title, tx, y - 16, 8, [255, 255, 255], "bold", col.align);
+          x += col.width;
+        });
+        y -= headerH;
+      }
+
+      function drawRow(item, index) {
+        const descriptionLines = wrapText(item.descricao, columns[1].width - 14, 9);
+        const rowH = Math.max(26, 13 + descriptionLines.length * 12);
+        if (y - rowH < margin + 70) {
+          addPage();
+          drawTableHeader();
+        }
+        rect(margin, y, tableWidth, rowH, index % 2 ? [238, 241, 245] : [255, 255, 255]);
+        let x = margin;
+        const base = y - 17;
+        drawText(item.codigo, x + 8, base, 9, [0, 0, 0], "regular", "left", columns[0].width - 12);
+        x += columns[0].width;
+        descriptionLines.forEach((line, lineIndex) => drawText(line, x + 8, base - lineIndex * 12, 9, [0, 0, 0], "regular", "left", columns[1].width - 14));
+        x += columns[1].width;
+        drawText(percent.format(item.quantidade), x + columns[2].width / 2, base, 9, [0, 0, 0], "regular", "center");
+        x += columns[2].width;
+        drawText(formatMoney(item.preco), x + columns[3].width - 8, base, 9, [0, 0, 0], "regular", "right");
+        x += columns[3].width;
+        drawText(formatMoney(item.quantidade * item.preco), x + columns[4].width - 8, base, 9, [0, 0, 0], "bold", "right");
+        y -= rowH;
+      }
+
+      function drawTotal() {
+        const validityText = "Este orçamento possui validade de 5 (cinco) dias corridos a partir da data de emissão, ou enquanto durarem os estoques disponíveis.";
+        const validityLines = wrapText(validityText, tableWidth, 8.5);
+        const needed = 90 + validityLines.length * 11;
+        if (y < margin + needed) addPage();
+        y -= 18;
+        rect(pageWidth - margin - 230, y, 230, 62, [233, 242, 255]);
+        drawText("Valor total do orçamento", pageWidth - margin - 214, y - 18, 10, [95, 107, 122], "bold");
+        drawText(formatMoney(totalValue), pageWidth - margin - 16, y - 34, 16, [13, 62, 120], "bold", "right");
+        drawText(`Total de SKUs: ${skuCount}`, pageWidth - margin - 16, y - 52, 8.5, [74, 85, 99], "regular", "right");
+        y -= 84;
+        line(margin, y, pageWidth - margin, y, [210, 218, 226], 0.7);
+        y -= 16;
+        validityLines.forEach((textLine, index) => {
+          drawText(textLine, margin, y - index * 11, 8.5, [74, 85, 99], "regular", "left", tableWidth);
+        });
+      }
+
+      function n(value) {
+        return Number(value).toFixed(2);
+      }
+
+      addPage();
+      drawTitle();
+      drawCommercialHeader();
+      drawTableHeader();
+      items.forEach(drawRow);
+      drawTotal();
+      pages.push(commands.join("\n"));
+      return buildPdfBytes(pages, pageWidth, pageHeight);
+    }
+
+    function buildPdfBytes(pageStreams, pageWidth, pageHeight) {
+      const objects = [];
+      objects[1] = "<< /Type /Catalog /Pages 2 0 R >>";
+      const pageObjectIds = pageStreams.map((_, index) => 3 + index * 2);
+      objects[2] = `<< /Type /Pages /Kids [${pageObjectIds.map(id => `${id} 0 R`).join(" ")}] /Count ${pageStreams.length} >>`;
+      pageStreams.forEach((stream, index) => {
+        const pageId = 3 + index * 2;
+        const streamId = pageId + 1;
+        objects[pageId] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth.toFixed(2)} ${pageHeight.toFixed(2)}] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >> >> >> /Contents ${streamId} 0 R >>`;
+        objects[streamId] = `<< /Length ${latinBytes(stream).length} >>\nstream\n${stream}\nendstream`;
+      });
+
+      let pdf = "%PDF-1.4\n%\xE2\xE3\xCF\xD3\n";
+      const offsets = [0];
+      for (let i = 1; i < objects.length; i += 1) {
+        offsets[i] = latinBytes(pdf).length;
+        pdf += `${i} 0 obj\n${objects[i]}\nendobj\n`;
+      }
+      const xref = latinBytes(pdf).length;
+      pdf += `xref\n0 ${objects.length}\n0000000000 65535 f \n`;
+      for (let i = 1; i < objects.length; i += 1) {
+        pdf += String(offsets[i]).padStart(10, "0") + " 00000 n \n";
+      }
+      pdf += `trailer\n<< /Size ${objects.length} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+      return latinBytes(pdf);
+    }
+
+    function latinBytes(text) {
+      const bytes = new Uint8Array(text.length);
+      for (let i = 0; i < text.length; i += 1) bytes[i] = text.charCodeAt(i) & 255;
+      return bytes;
+    }
+
+    function saveStockToStorage(atualizadoEm) {
+      try {
+        localStorage.setItem(STOCK_STORAGE_KEY, JSON.stringify({
+          produtos: products,
+          atualizadoEm
+        }));
+      } catch (error) {
+        stockStatus.textContent = "Estoque importado, mas não foi possível salvar no navegador.";
+        stockStatus.className = "status warn";
+      }
+    }
+
+    function loadStockFromStorage() {
+      try {
+        const saved = localStorage.getItem(STOCK_STORAGE_KEY);
+        if (!saved) return false;
+
+        const parsed = JSON.parse(saved);
+        if (!parsed || !Array.isArray(parsed.produtos)) return false;
+
+        products = parsed.produtos.filter(product =>
+          product &&
+          product.codigo !== undefined &&
+          product.descricao &&
+          Number.isFinite(Number(product.estoque)) &&
+          Number.isFinite(Number(product.custo))
+        ).map(product => ({
+          codigo: String(product.codigo),
+          descricao: String(product.descricao),
+          estoque: Number(product.estoque),
+          custo: Number(product.custo)
+        }));
+
+        quote = [];
+        searchInput.value = "";
+        stockStatus.innerHTML = `${products.length} produtos carregados do armazenamento local.<br>Estoque atualizado em ${escapeHtml(parsed.atualizadoEm || "data não informada").replace(" ", " às ")}.`;
+        stockStatus.className = "status ok";
+        renderProducts();
+        renderQuote();
+        return true;
+      } catch (error) {
+        localStorage.removeItem(STOCK_STORAGE_KEY);
+        return false;
+      }
+    }
+
+    function clearSavedStock() {
+      if (!confirm("Deseja realmente remover o estoque salvo?")) return;
+      localStorage.removeItem(STOCK_STORAGE_KEY);
+      products = [];
+      quote = [];
+      searchInput.value = "";
+      stockStatus.textContent = "Nenhum estoque importado.";
+      stockStatus.className = "status";
+      renderProducts();
+      renderQuote();
+    }
+
+    async function importStock(file) {
+      stockStatus.textContent = "Lendo planilha...";
+      stockStatus.className = "status warn";
+
+      try {
+        const rows = await readFirstSheet(file);
+        const parsed = rowsToProducts(rows);
+        products = parsed.products;
+        quote = [];
+        searchInput.value = "";
+        const updatedAt = nowPtBrMinute();
+        saveStockToStorage(updatedAt);
+        stockStatus.innerHTML = `${products.length} produtos importados.<br>Estoque atualizado em ${updatedAt.replace(" ", " às ")}.${parsed.invalids ? "<br>" + parsed.invalids + " linhas ignoradas." : ""}`;
+        stockStatus.className = "status ok";
+        renderProducts();
+        renderQuote();
+      } catch (error) {
+        stockStatus.textContent = "Não foi possível ler o arquivo .xlsx. " + error.message;
+        stockStatus.className = "status warn";
+      }
+    }
+
+    function rowsToProducts(rows) {
+      const headerIndex = rows.findIndex(row => row.some(cell => normalize(cell) === "codigo" || normalize(cell) === "codigo"));
+      if (headerIndex < 0) throw new Error("Cabeçalho não encontrado.");
+
+      const headers = rows[headerIndex].map(normalize);
+      const indexes = {
+        codigo: headers.findIndex(name => name === "codigo"),
+        descricao: headers.findIndex(name => name === "descricao"),
+        quantidade: headers.findIndex(name => name === "quantidade"),
+        custo: headers.findIndex(name => name === "vr. compra" || name === "vr compra")
+      };
+
+      if (Object.values(indexes).some(index => index < 0)) {
+        throw new Error("Colunas CÓDIGO, DESCRIÇÃO, QUANTIDADE e VR. COMPRA são obrigatórias.");
+      }
+
+      let invalids = 0;
+      const list = rows.slice(headerIndex + 1).map(row => {
+        const codigo = String(row[indexes.codigo] ?? "").trim();
+        const descricao = String(row[indexes.descricao] ?? "").trim();
+        const estoque = toNumber(row[indexes.quantidade]);
+        const custo = toNumber(row[indexes.custo]);
+
+        if (!codigo || !descricao) {
+          invalids += 1;
+          return null;
+        }
+
+        return { codigo, descricao, estoque, custo };
+      }).filter(Boolean);
+
+      return { products: list, invalids };
+    }
+
+    function getTextContent(node) {
+      return node ? node.textContent || "" : "";
+    }
+
+    async function readFirstSheet(file) {
+      if (!("DecompressionStream" in window)) {
+        throw new Error("Este navegador não suporta leitura offline de XLSX. Use Chrome, Edge ou Android Chrome atualizado.");
+      }
+
+      const buffer = await file.arrayBuffer();
+      const zip = await unzipXlsx(buffer);
+      const workbookXml = textFromZip(zip, "xl/workbook.xml");
+      const relsXml = textFromZip(zip, "xl/_rels/workbook.xml.rels");
+      const sharedXml = zip["xl/sharedStrings.xml"] ? textFromZip(zip, "xl/sharedStrings.xml") : "";
+
+      const parser = new DOMParser();
+      const workbook = parser.parseFromString(workbookXml, "application/xml");
+      const rels = parser.parseFromString(relsXml, "application/xml");
+      const sharedStrings = parseSharedStrings(sharedXml, parser);
+      const firstSheet = workbook.querySelector("sheet");
+      if (!firstSheet) throw new Error("Nenhuma aba encontrada.");
+
+      const relId = firstSheet.getAttribute("r:id");
+      const relation = Array.from(rels.querySelectorAll("Relationship")).find(rel => rel.getAttribute("Id") === relId);
+      if (!relation) throw new Error("Aba inicial não localizada.");
+
+      const target = relation.getAttribute("Target").replace(/^\/?xl\//, "");
+      const sheetPath = "xl/" + target;
+      const sheetXml = textFromZip(zip, sheetPath);
+      return parseSheetRows(sheetXml, sharedStrings, parser);
+    }
+
+    function parseSharedStrings(xmlText, parser) {
+      if (!xmlText) return [];
+      const xml = parser.parseFromString(xmlText, "application/xml");
+      return Array.from(xml.querySelectorAll("si")).map(si =>
+        Array.from(si.querySelectorAll("t")).map(getTextContent).join("")
+      );
+    }
+
+    function columnIndex(cellRef) {
+      const letters = String(cellRef || "").replace(/[0-9]/g, "");
+      let index = 0;
+      for (let i = 0; i < letters.length; i += 1) {
+        index = index * 26 + letters.charCodeAt(i) - 64;
+      }
+      return Math.max(0, index - 1);
+    }
+
+    function parseSheetRows(xmlText, sharedStrings, parser) {
+      const xml = parser.parseFromString(xmlText, "application/xml");
+      return Array.from(xml.querySelectorAll("sheetData row")).map(rowNode => {
+        const row = [];
+        Array.from(rowNode.querySelectorAll("c")).forEach(cell => {
+          const ref = cell.getAttribute("r");
+          const type = cell.getAttribute("t");
+          const inlineText = cell.querySelector("is t");
+          const valueNode = cell.querySelector("v");
+          let value = inlineText ? getTextContent(inlineText) : getTextContent(valueNode);
+
+          if (type === "s") value = sharedStrings[Number(value)] || "";
+          row[columnIndex(ref)] = value;
+        });
+        return row;
+      });
+    }
+
+    function textFromZip(zip, path) {
+      const text = zip[path];
+      if (text === undefined) throw new Error("Arquivo interno ausente: " + path);
+      return text;
+    }
+
+    async function inflateRaw(bytes) {
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+      return new Uint8Array(await new Response(stream).arrayBuffer());
+    }
+
+    async function unzipXlsx(buffer) {
+      const data = new Uint8Array(buffer);
+      const view = new DataView(buffer);
+      let eocd = -1;
+      for (let i = data.length - 22; i >= Math.max(0, data.length - 66000); i -= 1) {
+        if (view.getUint32(i, true) === 0x06054b50) {
+          eocd = i;
+          break;
+        }
+      }
+      if (eocd < 0) throw new Error("Estrutura ZIP inválida.");
+
+      const entries = view.getUint16(eocd + 10, true);
+      let offset = view.getUint32(eocd + 16, true);
+      const files = {};
+      const decoder = new TextDecoder("utf-8");
+
+      for (let i = 0; i < entries; i += 1) {
+        if (view.getUint32(offset, true) !== 0x02014b50) throw new Error("Diretório ZIP inválido.");
+        const method = view.getUint16(offset + 10, true);
+        const compressedSize = view.getUint32(offset + 20, true);
+        const fileNameLength = view.getUint16(offset + 28, true);
+        const extraLength = view.getUint16(offset + 30, true);
+        const commentLength = view.getUint16(offset + 32, true);
+        const localOffset = view.getUint32(offset + 42, true);
+        const nameBytes = data.slice(offset + 46, offset + 46 + fileNameLength);
+        const name = decoder.decode(nameBytes).replace(/\\/g, "/");
+
+        const localNameLength = view.getUint16(localOffset + 26, true);
+        const localExtraLength = view.getUint16(localOffset + 28, true);
+        const start = localOffset + 30 + localNameLength + localExtraLength;
+        const compressed = data.slice(start, start + compressedSize);
+        let content;
+
+        if (method === 0) {
+          content = compressed;
+        } else if (method === 8) {
+          content = await inflateRaw(compressed);
+        } else {
+          throw new Error("Compressão XLSX não suportada: " + method);
+        }
+
+        files[name] = decoder.decode(content);
+        offset += 46 + fileNameLength + extraLength + commentLength;
+      }
+
+      return files;
+    }
+
+    stockFile.addEventListener("change", event => {
+      const file = event.target.files[0];
+      if (file) importStock(file);
+      event.target.value = "";
+    });
+
+    searchInput.addEventListener("input", renderProducts);
+
+    productList.addEventListener("click", event => {
+      const button = event.target.closest("[data-add]");
+      if (button) addProduct(button.dataset.add);
+    });
+
+    quoteBody.addEventListener("input", event => {
+      const input = event.target.closest("input[data-index]");
+      if (!input) return;
+      const index = Number(input.dataset.index);
+      const field = input.dataset.field;
+      const value = input.value;
+      clearTimeout(inputTimer);
+      inputTimer = setTimeout(() => updateItem(index, field, value), 300);
+    });
+
+    quoteBody.addEventListener("change", event => {
+      const tableSelect = event.target.closest("[data-table-select]");
+      if (tableSelect) {
+        updateItemTable(Number(tableSelect.dataset.tableSelect), tableSelect.value);
+        return;
+      }
+
+      const input = event.target.closest("input[data-index]");
+      if (!input) return;
+      clearTimeout(inputTimer);
+      updateItem(Number(input.dataset.index), input.dataset.field, input.value);
+    });
+
+    quoteBody.addEventListener("click", event => {
+      const button = event.target.closest("[data-remove]");
+      if (button) removeItem(Number(button.dataset.remove));
+    });
+
+    clearButton.addEventListener("click", () => {
+      quote = [];
+      renderQuote();
+    });
+
+    exportButton.addEventListener("click", exportQuotePdf);
+
+    clearStockButton.addEventListener("click", clearSavedStock);
+
+    clearCustomerButton.addEventListener("click", () => {
+      customerFields.forEach(field => {
+        field.value = "";
+      });
+    });
+
+    documentInput.addEventListener("input", () => {
+      documentInput.value = maskCpfCnpj(documentInput.value);
+    });
+
+    customerPhoneInput.addEventListener("input", () => {
+      customerPhoneInput.value = maskPhone(customerPhoneInput.value);
+    });
+
+    whatsappSellerInput.addEventListener("input", () => {
+      whatsappSellerInput.value = maskPhone(whatsappSellerInput.value);
+    });
+
+    targetCommissionInput.addEventListener("input", () => {
+      targetCommissionInput.value = sanitizeTargetCommission(targetCommissionInput.value);
+      renderSummary();
+    });
+
+    quoteDateInput.value = todayPtBr();
+    renderRules();
+    if (!loadStockFromStorage()) {
+      renderProducts();
+      renderQuote();
+    }
+  </script>
+</body>
+</html>
