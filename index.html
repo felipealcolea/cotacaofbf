@@ -1678,12 +1678,64 @@
       renderSummary();
     });
 
+    async function loadSharedStock() {
+      try {
+        const response = await fetch("estoque.json?v=" + Date.now());
+
+        if (!response.ok) {
+          throw new Error("Arquivo estoque.json não encontrado.");
+        }
+
+        const data = await response.json();
+
+        if (!data.produtos || !Array.isArray(data.produtos)) {
+          throw new Error("Formato inválido do estoque.");
+        }
+
+        products = data.produtos
+          .filter(product =>
+            product &&
+            product.codigo !== undefined &&
+            product.descricao &&
+            Number.isFinite(Number(product.estoque)) &&
+            Number.isFinite(Number(product.custo))
+          )
+          .map(product => ({
+            codigo: String(product.codigo),
+            descricao: String(product.descricao),
+            estoque: Number(product.estoque),
+            custo: Number(product.custo)
+          }));
+
+        quote = [];
+        searchInput.value = "";
+
+        stockStatus.innerHTML =
+          `${products.length} produtos carregados do estoque compartilhado.<br>` +
+          `Estoque atualizado em ${(data.atualizadoEm || "data não informada").replace(" ", " às ")}.`;
+
+        stockStatus.className = "status ok";
+
+        renderProducts();
+        renderQuote();
+
+      } catch (error) {
+        if (!loadStockFromStorage()) {
+          stockStatus.innerHTML =
+            "Nenhum estoque compartilhado encontrado.<br>" +
+            "Importe um arquivo XLSX manualmente.";
+
+          stockStatus.className = "status warn";
+
+          renderProducts();
+          renderQuote();
+        }
+      }
+    }
+
     quoteDateInput.value = todayPtBr();
     renderRules();
-    if (!loadStockFromStorage()) {
-      renderProducts();
-      renderQuote();
-    }
+    loadSharedStock();
   </script>
 </body>
 </html>
